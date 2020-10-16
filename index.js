@@ -85,6 +85,13 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function (err, client) {
       })
   })
 
+  app.get('/admin', (req, res) => {
+    adminCollection.find({})
+      .toArray((err, documents) => {
+        res.send(documents);
+      })
+  });
+
 
   app.post('/addOrder', (req, res) => {
     const file = req.files.file;
