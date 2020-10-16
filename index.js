@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 })
 
 
-MongoClient.connect(uri, { useUnifiedTopology: true }, function(err, client) {
+MongoClient.connect(uri, { useUnifiedTopology: true }, function (err, client) {
   const serviceCollection = client.db(`${process.env.DB_NAME}`).collection("services");
   const reviewCollection = client.db(`${process.env.DB_NAME}`).collection("reviews");
   const adminCollection = client.db(`${process.env.DB_NAME}`).collection("admins");
@@ -44,16 +44,16 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function(err, client) {
     };
 
     serviceCollection.insertOne({ title, description, price, img })
-    .then(result => {
-      res.send(result.insertedCount > 0)
-    })
+      .then(result => {
+        res.send(result.insertedCount > 0)
+      })
   })
 
   app.get('/services', (req, res) => {
     serviceCollection.find({})
-    .toArray((err, documents) => {
+      .toArray((err, documents) => {
         res.send(documents);
-    })
+      })
   });
 
 
@@ -63,26 +63,26 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function(err, client) {
     const title = req.body.title;
     const description = req.body.description;
     reviewCollection.insertOne({ name, title, description, img })
-    .then(result => {
-      res.send(result.insertedCount > 0)
-    })
+      .then(result => {
+        res.send(result.insertedCount > 0)
+      })
   })
 
 
   app.get('/feedbacks', (req, res) => {
     reviewCollection.find({})
-    .toArray((err, documents) => {
+      .toArray((err, documents) => {
         res.send(documents);
-    })
+      })
   });
 
 
   app.post('/addAdmin', (req, res) => {
     const admin = req.body.email;
-    adminCollection.insertOne({admin})
-    .then(result => {
-      res.send(result.insertedCount > 0)
-    })
+    adminCollection.insertOne({ admin })
+      .then(result => {
+        res.send(result.insertedCount > 0)
+      })
   })
 
 
@@ -105,9 +105,9 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function(err, client) {
     };
 
     orderCollection.insertOne({ name, email, title, description, status, price, img, projectFile })
-    .then(result => {
-      res.send(result.insertedCount > 0)
-    })
+      .then(result => {
+        res.send(result.insertedCount > 0)
+      })
   })
 
 
@@ -115,43 +115,39 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function(err, client) {
   app.post('/servicesList', (req, res) => {
     const email = req.body.email;
     adminCollection.find({ admin: email })
-        .toArray((err, admin) => {
-            const filter = {};
-            if (admin.length === 0) {
-                filter.email = email;
-            }
-            orderCollection.find(filter)
-                .toArray((err, documents) => {
-                    res.send(documents);
-                })
-        })
+      .toArray((err, admin) => {
+        const filter = {};
+        if (admin.length === 0) {
+          filter.email = email;
+        }
+        orderCollection.find(filter)
+          .toArray((err, documents) => {
+            res.send(documents);
+          })
+      })
   })
 
 
   app.post('/isAdmin', (req, res) => {
     const email = req.body.email;
     adminCollection.find({ admin: email })
-        .toArray((err, admin) => {
-            res.send(admin.length > 0);
-        })
-})
-
-app.patch('/updateOrder/:id', (req, res) => {
-  const statu = req.body.status;
-  orderCollection.updateOne({_id: ObjectId(req.params.id)},
-  {
-    $set: {status: statu}
+      .toArray((err, admin) => {
+        res.send(admin.length > 0);
+      })
   })
-  .then(result => {
-    res.send(result);
+
+  app.patch('/updateOrder/:id', (req, res) => {
+    const statu = req.body.status;
+    orderCollection.updateOne({ _id: ObjectId(req.params.id) },
+      {
+        $set: { status: statu }
+      })
+      .then(result => {
+        res.send(result);
+      })
   })
-})
-
-
 
 });
 
 
-
-
-app.listen(port)
+app.listen(process.env.PORT || port)
