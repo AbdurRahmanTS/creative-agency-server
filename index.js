@@ -85,12 +85,29 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function (err, client) {
       })
   })
 
-  app.get('/admin', (req, res) => {
-    adminCollection.find({})
-      .toArray((err, documents) => {
-        res.send(documents);
+  app.post('/isAdmin', (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ admin: email })
+      .toArray((err, admin) => {
+        res.send(admin.length > 0);
       })
-  });
+  })
+
+
+  app.post('/servicesList', (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ admin: email })
+      .toArray((err, admin) => {
+        const filter = {};
+        if (admin.length === 0) {
+          filter.email = email;
+        }
+        orderCollection.find(filter)
+          .toArray((err, documents) => {
+            res.send(documents);
+          })
+      })
+  })
 
 
   app.post('/addOrder', (req, res) => {
@@ -117,31 +134,6 @@ MongoClient.connect(uri, { useUnifiedTopology: true }, function (err, client) {
       })
   })
 
-
-
-  app.post('/servicesList', (req, res) => {
-    const email = req.body.email;
-    adminCollection.find({ admin: email })
-      .toArray((err, admin) => {
-        const filter = {};
-        if (admin.length === 0) {
-          filter.email = email;
-        }
-        orderCollection.find(filter)
-          .toArray((err, documents) => {
-            res.send(documents);
-          })
-      })
-  })
-
-
-  app.post('/isAdmin', (req, res) => {
-    const email = req.body.email;
-    adminCollection.find({ admin: email })
-      .toArray((err, admin) => {
-        res.send(admin.length > 0);
-      })
-  })
 
   app.patch('/updateOrder/:id', (req, res) => {
     const statu = req.body.status;
